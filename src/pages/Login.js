@@ -1,15 +1,52 @@
-import { Button, Checkbox, Col, Form, Input, Row } from 'antd';
+import { Alert, Button, Checkbox, Col, Form, Input, Row } from 'antd';
 import { Content } from 'antd/lib/layout/layout';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import { useNavigate  } from "react-router-dom";
+import axios from '../helpers/axios'
 import "./Login.css"
 
 const App = () => {
-    const onFinish = (values) => {
-        console.log('Success:', values);
-    };
+    const [getErrorMesage, setErrorMessage] = useState()
+    let navigate = useNavigate ()
+
+    const onFinish = useCallback(async (values) => {
+        setErrorMessage(null)
+        
+        try {
+            console.log('Success:', values);
+            console.log(axios)
+            const response = await axios.post("usuarios/login", values)
+
+            const token = response.data
+
+            localStorage.setItem("token", token)
+            navigate("/dashboard")
+        } catch (error) {
+            console.warn(error)
+            if (error.response) {
+                const response = error.response
+                const data = response.data
+                setErrorMessage(data.message)
+            }
+            throw error
+        }
+    }, [navigate]);
+
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
+
+    const renderErrorMessage = useCallback(() => {
+        if (!getErrorMesage) return null
+
+        return (
+            <Form.Item>
+                <Alert message={getErrorMesage} type='error' />
+            </Form.Item>
+        )
+
+    }, [getErrorMesage])
+
     return (
         <Content className='ContentContainer'>
             <Row>
@@ -27,9 +64,11 @@ const App = () => {
                             <object data='./engineering_team.svg' width={400} height={400} />
                         </Form.Item>
 
+                        {renderErrorMessage()}
+
                         <Form.Item
                             label="E-mail"
-                            name="username"
+                            name="email"
                             rules={[
                                 {
                                     required: true,
@@ -42,7 +81,7 @@ const App = () => {
 
                         <Form.Item
                             label="Senha"
-                            name="password"
+                            name="senha"
                             rules={[
                                 {
                                     required: true,
