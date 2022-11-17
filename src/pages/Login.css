@@ -5,7 +5,7 @@
     align-items: center;
 }
 
-.Form {
+.FormLogin {
     display: flex;
     flex-direction: column;
     text-align: center;
@@ -25,7 +25,7 @@
     box-shadow: 15px 15px 20px red;
 }
 
-Form:hover {
+Form.FormLogin:hover {
     box-shadow: 15px 15px 0 #bfafb2, -15px -15px #bfafb2;
     -webkit-transition: box-shadow ease-out 0.6s;
     transition: box-shadow ease-out 0.6s;

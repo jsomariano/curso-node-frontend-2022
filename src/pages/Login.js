@@ -1,36 +1,37 @@
 import { Alert, Button, Checkbox, Col, Form, Input, Row } from 'antd';
 import { Content } from 'antd/lib/layout/layout';
-import React, { useCallback, useState } from 'react';
-import { useNavigate  } from "react-router-dom";
+import React, { useCallback, useMemo, useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import axios from '../helpers/axios'
 import "./Login.css"
 
-const App = () => {
+const Login = () => {
+    const axiosInstance = useMemo(() => axios(), [])
     const [getErrorMesage, setErrorMessage] = useState()
-    let navigate = useNavigate ()
+    let navigate = useNavigate()
 
     const onFinish = useCallback(async (values) => {
         setErrorMessage(null)
-        
         try {
             console.log('Success:', values);
             console.log(axios)
-            const response = await axios.post("usuarios/login", values)
+            const response = await axiosInstance.post("usuarios/login", values)
+            const UserData = response.data
 
-            const token = response.data
+            localStorage.setItem("auth", JSON.stringify(UserData))
 
-            localStorage.setItem("token", token)
-            navigate("/dashboard")
+            navigate("/users")
         } catch (error) {
             console.warn(error)
             if (error.response) {
                 const response = error.response
                 const data = response.data
                 setErrorMessage(data.message)
+            } else {
+                throw error
             }
-            throw error
         }
-    }, [navigate]);
+    }, [navigate, axiosInstance]);
 
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
@@ -53,7 +54,7 @@ const App = () => {
                 <Col align="center" span={24}>
                     <Form
                         name="basic"
-                        className='Form'
+                        className='FormLogin'
                         onFinish={onFinish}
                         onFinishFailed={onFinishFailed}
                         autoComplete="off"
@@ -99,8 +100,7 @@ const App = () => {
                             <Checkbox>Lembrar senha</Checkbox>
                         </Form.Item>
 
-                        <Form.Item
-                        >
+                        <Form.Item>
                             <Button type="primary" htmlType="submit">
                                 Submit
                             </Button>
@@ -111,4 +111,4 @@ const App = () => {
         </Content >
     );
 };
-export default App;
+export default Login;
